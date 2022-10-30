@@ -31,9 +31,9 @@ def slider_changed1(event):
 
 slider1 = ttk.Scale(
     tab1,
-    from_=0,
-    to=100,
-    orient='horizontal',  # horizontal
+    from_=100,
+    to=0,
+    orient='vertical',  # horizontal
     command=slider_changed1,
     variable=current_value1
 )
@@ -61,9 +61,9 @@ def slider_changed2(event):
 
 slider2 = ttk.Scale(
     tab1,
-    from_=0,
-    to=100,
-    orient='horizontal',  # horizontal
+    from_=100,
+    to=0,
+    orient='vertical',  # horizontal
     command=slider_changed2,
     variable=current_value2
 )
@@ -82,21 +82,22 @@ value_label_2.grid(
     sticky='n'
 )
 #-------------------------------------------------------
-R=6371000
+R=6371*1000
 
 def oblicz():
     h1 = current_value1.get()
     h2 = current_value2.get()
-    d1= math.sqrt(2*(3/4)*R*h1)
-    d2 = math.sqrt(2*(3/4)*R*h2)
+    d1= math.sqrt(2*(4/3)*R*h1)
+    d2 = math.sqrt(2*(4/3)*R*h2)
     d = round(d1 + d2)
+    print(d)
     f = int(freq.get())
-    fresnel = round(17.31*(math.sqrt(d/(4*f))),2)
+    fresnel = round(17.31*(math.sqrt((d)/(4*int(f)))),2)
     global LOS 
     global Fresnel
     LOS = d
     Fresnel = fresnel
-    wynik.set("LOS dla dwoch masztow wynosi: \n" + str(d) + " \na średnica strefy fresnela wynosi: \n" + str(fresnel))
+    wynik.set("LOS dla dwoch masztow wynosi: \n" + str(d) + "m \na średnica strefy fresnela wynosi: \n" + str(fresnel) + "m")
 
 
 def zapiszDoJSON(event):
@@ -138,15 +139,16 @@ label = ttk.Label(tab1, textvariable=wynik).grid(column=1, row=2, pady = 30, pad
 
 def zapiszDoJSON_2(event):
     current_value=float(wysokosc.get())
-    X=wspx.get()
-    Y=wspy.get()
+    X=lat.get()
+    Y=lon.get()
     h = float(current_value)
-    d= math.sqrt(2*(4/3)*R*h)
+    d= round(math.sqrt(2*(4/3)*R*h),2)
     LOS = d
+    wynik2.set("LOS dla podanego masztu wynosi: \n" + str(d) + "m")
 
     dictionary = {
-        "wysokosc1": h,
-        "koordynaty": [ X ,Y ],
+        "wysokosc": h,
+        "szerokosc i dlugosc geograficzna": [ X ,Y ],
         "LOS": LOS
     }
 
@@ -160,17 +162,20 @@ ttk.Label(tab2, text='Wysokosc').grid(column=0, row=0,padx = 50)
 wysokosc = Entry(tab2,textvariable='0.0')
 wysokosc.grid(row = 0, column = 1,padx = 5)
 
-ttk.Label(tab2, text='wspolrzedna x').grid(column=0, row=1,padx = 50)
-wspx = Entry(tab2)
-wspx.grid(row = 1, column = 1,padx = 5)
+ttk.Label(tab2, text='szerokość geograficzna').grid(column=0, row=1,padx = 50)
+lat = Entry(tab2)
+lat.grid(row = 1, column = 1,padx = 5)
 
-ttk.Label(tab2, text='wspolrzedna y').grid(column=0, row=2,padx = 50)
-wspy = Entry(tab2)
-wspy.grid(row = 2, column = 1,padx = 5)
+ttk.Label(tab2, text='długość geograficzna').grid(column=0, row=2,padx = 50)
+lon = Entry(tab2)
+lon.grid(row = 2, column = 1,padx = 5)
 
-Jsyn = Button(tab2, text = 'Zapisz do JSON')
+wynik2 = StringVar()
+wynik2.set("Wynik LOS")
+label = ttk.Label(tab2, textvariable=wynik2).grid(column=1, row=3, pady = 30, padx = 10)
+
+Jsyn = Button(tab2, text = 'Wyswietl LOS i Zapisz do JSON')
 Jsyn.bind('<Button-1>',zapiszDoJSON_2)
-Jsyn.grid(row = 3, column = 1)
-
+Jsyn.grid(row = 4, column = 1)
 
 root.mainloop()
